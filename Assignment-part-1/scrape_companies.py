@@ -7,13 +7,13 @@ import csv
 import time
 
 
-OUTPUT_FILE = "500co_companies_selenium.csv"
-# URL = "https://500.co/companies"
 page_no = 221
-URL = f"https://500.co/portfolio?industry=all&region=all&stage=all&country=all&bModel=all&batch=all&&page={str(page_no)}&sort=alphabetically#companies-table"
 
 
-def scrape_companies(URL):
+
+def scrape_companies(page_no):
+    URL = f"https://500.co/portfolio?industry=all&region=all&stage=all&country=all&bModel=all&batch=all&&page={str(page_no)}&sort=alphabetically#companies-table"
+    OUTPUT_FILE = "500co_companies_selenium.csv"
     options = Options()
     options.add_argument("--start-maximized")
     # options.add_argument("--headless")  # uncomment to run in background
@@ -46,12 +46,8 @@ def scrape_companies(URL):
             else:
                 stable_scrolls += 1
                 if stable_scrolls >= 5:
-                    print("[*] No more new cards detected. Stopping scroll.")
                     break
 
-            # Scroll down and wait for more cards to load
-            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            time.sleep(4)
 
         # Now extract details
         rows = []
@@ -66,14 +62,15 @@ def scrape_companies(URL):
                     link = card.find_element(By.TAG_NAME, "a").get_attribute("href")
                 except:
                     link = ""
+                
+              
 
-                rows.append([name, link])
+                rows.append([name , link])
             except:
                 continue
 
-        with open(OUTPUT_FILE, "w", newline="", encoding="utf-8") as f:
+        with open(OUTPUT_FILE, "a", newline="", encoding="utf-8") as f:
             writer = csv.writer(f)
-            writer.writerow(["Company Name", "Description" , "Link"])
             writer.writerows(rows)
 
         print(f"✅ Done. Scraped {len(rows)} companies. Saved to {OUTPUT_FILE}")
@@ -81,5 +78,17 @@ def scrape_companies(URL):
     finally:
         driver.quit()
 
+def create_file():
+    OUTPUT_FILE = "500co_companies_selenium.csv"
+    with open(OUTPUT_FILE, "w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerow(["Company Name" , "Link"])
+    print("[*] File Created with headings")
+
+
+
 if __name__ == "__main__":
-    scrape_companies(URL)
+    create_file()
+    for page_no in range(1,222) :
+        print(f"[*] Initialising Scrapping of page Number {str(page_no)}")
+        scrape_companies(page_no)
