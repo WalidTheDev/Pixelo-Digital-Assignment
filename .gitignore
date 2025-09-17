@@ -14,3 +14,5 @@ Thumbs.db
 .idea/
 .env
 *.egg-info/
+create_zip.py
+*.zip
